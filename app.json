@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "app-apoyo-emocional",
+    "name": "Heart container",
     "slug": "app-apoyo-emocional",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,14 +12,16 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.josemanuel.apoyoemocional",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#c4e5f4",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["VIBRATE"]
     },
     "web": {
       "output": "static",
@@ -43,6 +45,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1994a9cb-8c86-497a-b5fa-b7366804c94c"
+      }
     }
   }
 }
