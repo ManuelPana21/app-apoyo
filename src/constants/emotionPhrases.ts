@@ -23,7 +23,21 @@ const phrases = {
     Hombre: 'Me siento tranquilo y relajado',
     Mujer: 'Me siento tranquila y relajada',
     Otro: 'Me siento en total calma y paz',
+  },
+  enojado: { 
+    Hombre: 'Me siento frustrado y enojado',
+    Mujer: 'Me siento frustrada y enojada',
+    Otro: 'Siento mucha frustración y enojo',
   }
+};
+
+// Diccionario de colores sugeridos para cada emoción
+export const emotionColors = {
+  feliz: '#FFD700',      // Amarillo
+  triste: '#4169E1',     // Azul real
+  ansioso: '#FF8C00',    // Naranja oscuro
+  tranquilo: '#32CD32',  // Verde lima
+  enojado: '#DC143C',    // Rojo carmesí
 };
 
 // Función que exportaremos para usar en el check-in

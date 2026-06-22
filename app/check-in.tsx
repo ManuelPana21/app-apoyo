@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { LayoutAnimation, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { generateCalmQuestion, getAnxiousTip, getComfortTip, getFoodTip, getHabitTip } from '../src/constants/checkinPrompts';
+// Asegúrate de que getAngryTip esté exportado desde tu archivo de prompts
+import { generateCalmQuestion, getAngryTip, getAnxiousTip, getComfortTip, getFoodTip, getHabitTip } from '../src/constants/checkinPrompts';
 import { getEmotionPhrase } from '../src/constants/emotionPhrases';
 import { theme } from '../src/constants/theme';
 import { getCurrentUser, User } from '../src/services/authService';
@@ -28,6 +29,11 @@ const PHRASE_BANK = {
     'La ansiedad puede ser abrumadora, pero recuerda que no estás solo y no tienes por qué estarlo.',
     'Entiendo que tu mente vaya a mil por hora ahora mismo. Estoy aquí para acompañarte.',
     'Es normal sentirse ansioso a veces. No estás solo en esto, vamos a superarlo paso a paso.'
+  ],
+  enojado: [
+    'Es completamente válido sentir enojo. Tu frustración tiene una razón de ser y está bien darle su espacio.',
+    'Siento mucho que estés pasando por un momento de tanta frustración. Respira, aquí tienes un lugar seguro.',
+    'El enojo es una emoción con mucha energía, es normal sentir que te desborda. Vamos a procesarlo paso a paso.'
   ]
 };
 
@@ -47,7 +53,8 @@ export default function CheckInScreen() {
   
   const [history, setHistory] = useState<string[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
-  const [path, setPath] = useState<'positive' | 'negative' | 'calm' | 'anxious' | null>(null);
+  // Añadimos 'angry' a las opciones del path
+  const [path, setPath] = useState<'positive' | 'negative' | 'calm' | 'anxious' | 'angry' | null>(null);
   const [tempFactor, setTempFactor] = useState('');
   const [dynamicMessage, setDynamicMessage] = useState('');
   const [calmQuestion, setCalmQuestion] = useState('');
@@ -85,7 +92,8 @@ export default function CheckInScreen() {
     return () => clearTimeout(timeout);
   }, [isBreathing, breathTimer, breathPhase, path]);
 
- const handleEmotionSelect = (emotionId: 'feliz' | 'tranquilo' | 'triste' | 'ansioso') => {
+  // Actualizamos para recibir 'enojado'
+  const handleEmotionSelect = (emotionId: 'feliz' | 'tranquilo' | 'triste' | 'ansioso' | 'enojado') => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     // Guardamos el texto "Me siento [Emoción]" para la gráfica
@@ -107,6 +115,8 @@ export default function CheckInScreen() {
       setCalmQuestion(generateCalmQuestion());
     } else if (emotionId === 'ansioso') {
       setPath('anxious');
+    } else if (emotionId === 'enojado') {
+      setPath('angry'); // Asignamos la nueva ruta
     } else {
       setPath('negative');
     }
@@ -127,7 +137,7 @@ export default function CheckInScreen() {
     else if (currentStep === 3) {
       await saveCheckIn(history[0], tempFactor);
       
-      if (answer.includes('escribir')) {
+      if (answer.includes('escribir') || answer.includes('cuaderno')) {
         router.replace('/write-memory');
       } else {
         router.back();
@@ -174,6 +184,10 @@ export default function CheckInScreen() {
             <TouchableOpacity style={styles.optionButton} onPress={() => handleEmotionSelect('ansioso')}>
               <Text style={styles.optionText}>Ansioso</Text>
             </TouchableOpacity>
+            {/* Nuevo botón para Enojado */}
+            <TouchableOpacity style={styles.optionButton} onPress={() => handleEmotionSelect('enojado')}>
+              <Text style={styles.optionText}>Enojado</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -186,7 +200,8 @@ export default function CheckInScreen() {
             styles.validationText, 
             path === 'positive' && styles.positiveText,
             path === 'calm' && styles.calmText,
-            path === 'anxious' && styles.anxiousText
+            path === 'anxious' && styles.anxiousText,
+            path === 'angry' && styles.angryText // Añadimos el estilo dinámico para el enojo
           ]}>
             {dynamicMessage}
           </Text>
@@ -234,6 +249,24 @@ export default function CheckInScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.optionButtonWide} onPress={() => handleAnswer('Mi música favorita')}>
                   <Text style={styles.optionText}>Mis canciones favoritas</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
+          {/* Nueva sección Step 2 para Enojado */}
+          {path === 'angry' && (
+            <>
+              <Text style={styles.questionText}>¿Te gustaría intentar hacer algo para canalizar un poco de esa energía ahora mismo?</Text>
+              <View style={styles.optionsColumn}>
+                <TouchableOpacity style={styles.optionButtonWide} onPress={() => handleAnswer('Necesito distraerme un poco')}>
+                  <Text style={styles.optionText}>Necesito distraerme</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.optionButtonWide} onPress={() => handleAnswer('Quiero tratar de relajarme')}>
+                  <Text style={styles.optionText}>Intentar relajarme</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.optionButtonWide} onPress={() => handleAnswer('Prefiero no hacer nada')}>
+                  <Text style={styles.optionText}>Prefiero no hacer nada</Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -343,6 +376,22 @@ export default function CheckInScreen() {
             </>
           )}
 
+          {/* Nueva sección Step 3 para Enojado */}
+          {path === 'angry' && (
+            <>
+              <Text style={styles.tipText}>{getAngryTip(user?.hobbies)}</Text>
+              <Text style={styles.questionText}>A veces desahogarse escribiendo ayuda a liberar la tensión. ¿Te gustaría usar tu cuaderno?</Text>
+              <View style={styles.optionsColumn}>
+                <TouchableOpacity style={styles.optionButtonWide} onPress={() => handleAnswer('Sí, ir a mi cuaderno')}>
+                  <Text style={styles.optionText}>Sí, quiero desahogarme</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.optionButtonWide, { backgroundColor: '#94A3B8' }]} onPress={() => handleAnswer('Prefiero no hacerlo')}>
+                  <Text style={styles.optionText}>No por ahora</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
           {path === 'anxious' && (
             <>
               <Text style={styles.tipText}>{getAnxiousTip(user?.hobbies)}</Text>
@@ -419,6 +468,11 @@ const styles = StyleSheet.create({
   },
   anxiousText: {
     color: '#8B5CF6', 
+    fontWeight: '600',
+  },
+  // Nuevo estilo para la validación del enojo
+  angryText: {
+    color: '#EF4444', 
     fontWeight: '600',
   },
   tipText: {

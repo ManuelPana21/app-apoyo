@@ -57,3 +57,12 @@ export const getAnxiousTip = (hobbies?: string[]) => {
   }
   return 'Para terminar de relajarte, te recomiendo escuchar música tranquila o lo-fi, jugar algún videojuego que te guste o ver tu serie favorita.';
 };
+
+export const getAngryTip = (hobbies?: string[]) => {
+  let hobbySuggestion = '';
+  if (hobbies && hobbies.length > 0) {
+    const randomHobby = hobbies[Math.floor(Math.random() * hobbies.length)];
+    hobbySuggestion = ` También, enfocarte un rato en ${randomHobby.toLowerCase()} puede ayudarte a cambiar de ambiente.`;
+  }
+  return `Es normal sentir enojo. Si puedes, intenta dar una caminata corta, escribir en tu diario por qué te sientes así, o hacer algunos ejercicios de respiración profunda para liberar la tensión física.${hobbySuggestion}`;
+};

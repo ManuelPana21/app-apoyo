@@ -91,6 +91,17 @@ export default function RegisterScreen() {
           onChangeText={setPassword}
         />
 
+        <CustomInput
+          placeholder="Confirmar contraseña"
+          value={confirmPassword}
+          isDark={false}
+          isPassword={true}
+          onChangeText={setConfirmPassword}
+        />
+
+        {showMismatch && <Text style={styles.mismatchIndicator}>Las contraseñas no coinciden</Text>}
+        {passwordsMatch && <Text style={styles.matchIndicator}>Las contraseñas coinciden</Text>}
+
         <CustomButton 
           title="Registrarme" 
           onPress={handleRegister} 
@@ -133,19 +144,21 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   matchIndicator: {
-    position: 'absolute',
-    right: 45,
-    fontSize: 18,
+    fontSize: 14, 
     fontWeight: 'bold',
-    color: '#4CAF50',
-    zIndex: 10,
+    color: '#4CAF50', 
+    marginTop: 5,    
+    marginBottom: 10, 
+    alignSelf: 'flex-start',
+    paddingLeft: 5,
   },
   mismatchIndicator: {
-    position: 'absolute',
-    right: 45,
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#F44336',
-    zIndex: 10,
+    marginTop: 5,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+    paddingLeft: 5,
   }
 });

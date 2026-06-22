@@ -1,20 +1,21 @@
 {
   "expo": {
-    "name": "Heart container",
+    "name": "Heart Container",
     "slug": "app-apoyo-emocional",
+    "scheme": "heartcontainer", 
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "appapoyoemocional",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
     },
     "android": {
-      "package": "com.josemanuel.apoyoemocional",
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundColor": "#D6F1FF"
       }
     },
     "plugins": [

@@ -8,7 +8,8 @@ import CustomInput from '../src/components/CustomInput';
 import { theme } from '../src/constants/theme';
 import { login } from '../src/services/authService';
 
-export default function HomeScreen() {
+// Esta funcion es la pantalla inicial que lee Expo al abrir la app
+export default function Index() {
   // Variables para guardar lo que el usuario escribe
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -22,27 +23,27 @@ export default function HomeScreen() {
 
   // Funcion que se ejecuta al presionar Iniciar Sesion
   const handleLogin = async () => {
-    // Llamamos al servicio con el nuevo nombre
+    // Llamamos al servicio de autenticacion
     const result = await login(username, password);
     
     if (result.success && result.user) {
-      // Verificamos desde result.user si faltan datos
+      // Verificamos si es primera vez o faltan datos para mandarlo al onboarding
       if (result.user.isFirstLogin || !result.user.gender) {
         router.replace('/onboarding');
       } else {
+        // Si ya tiene todo completo lo mandamos al dashboard
         router.replace('/(tabs)/dashboard');
       }
     } else {
-      // Configuramos y mostramos tu alerta personalizada en caso de fallar
+      // Configuramos y mostramos la alerta en caso de fallar
       setAlertTitle('Error de acceso');
       setAlertMessage(result.error || 'Credenciales incorrectas');
       setAlertVisible(true);
     }
   };
 
-  // La funcion de la alerta se limpia
+  // Funcion para cerrar la alerta en pantalla
   const handleCloseAlert = () => {
-    // Solo apagamos la alerta, sin intentar navegar ni leer usuarios
     setAlertVisible(false);
   };
 

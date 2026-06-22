@@ -1,11 +1,10 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import CustomButton from '../../src/components/CustomButton';
 import { theme } from '../../src/constants/theme';
 import { Quote, quotesDatabase } from '../../src/data/quotesDatabase';
-// Importamos los servicios de la base de datos local
 import { CheckIn, getCheckIns, getTodayCheckIn } from '../../src/services/checkinService';
 
 const getGreetingData = () => {
@@ -51,17 +50,17 @@ export default function DashboardScreen() {
   const screenWidth = Dimensions.get('window').width;
   const greetingData = getGreetingData();
 
-  // Estados para manejar la informacion real de la base de datos
   const [todayMood, setTodayMood] = useState<CheckIn | null>(null);
   const [dailyQuote, setDailyQuote] = useState<Quote>(getRandomQuote([]));
+  // Añadimos Enojado a la configuracion inicial de la grafica
   const [chartData, setChartData] = useState([
     { name: 'Feliz', count: 0, color: '#A8DADC', legendFontColor: '#475569', legendFontSize: 14 },
     { name: 'Triste', count: 0, color: '#8FAADC', legendFontColor: '#475569', legendFontSize: 14 },
     { name: 'Ansioso', count: 0, color: '#ffb3ba', legendFontColor: '#475569', legendFontSize: 14 },
     { name: 'Tranquilo', count: 0, color: '#baffc9', legendFontColor: '#475569', legendFontSize: 14 },
+    { name: 'Enojado', count: 0, color: '#f87171', legendFontColor: '#475569', legendFontSize: 14 },
   ]);
 
-  // Ejecuta la recoleccion de datos al entrar a la pantalla
   useFocusEffect(
     useCallback(() => {
       loadRealData();
@@ -74,15 +73,16 @@ export default function DashboardScreen() {
 
     setTodayMood(today);
 
-    let feliz = 0, triste = 0, ansioso = 0, tranquilo = 0;
+    // Añadimos la variable para el enojo
+    let feliz = 0, triste = 0, ansioso = 0, tranquilo = 0, enojado = 0;
 
-    // Conteo seguro de las emociones evitando datos corruptos
     history.forEach(item => {
       if (item && item.emotion) {
         if (item.emotion.includes('Feliz')) feliz++;
         else if (item.emotion.includes('Triste')) triste++;
         else if (item.emotion.includes('Ansioso')) ansioso++;
         else if (item.emotion.includes('Tranquilo')) tranquilo++;
+        else if (item.emotion.includes('Enojado')) enojado++; // Sumamos el enojo
       }
     });
 
@@ -91,13 +91,13 @@ export default function DashboardScreen() {
       { name: 'Triste', count: triste, color: '#8FAADC', legendFontColor: '#475569', legendFontSize: 14 },
       { name: 'Ansioso', count: ansioso, color: '#ffb3ba', legendFontColor: '#475569', legendFontSize: 14 },
       { name: 'Tranquilo', count: tranquilo, color: '#baffc9', legendFontColor: '#475569', legendFontSize: 14 },
+      { name: 'Enojado', count: enojado, color: '#f87171', legendFontColor: '#475569', legendFontSize: 14 },
     ];
 
     setChartData(newChartData);
     setDailyQuote(getRandomQuote(newChartData));
   };
 
-  // Calculamos si hay registros para saber si mostrar el grafico
   const totalRegisters = chartData.reduce((sum, item) => sum + item.count, 0);
 
   return (
@@ -115,23 +115,29 @@ export default function DashboardScreen() {
       <View style={styles.chartCard}>
         <Text style={styles.chartTitle}>Resumen de tu mes</Text>
         
-        {/* Renderizado condicional: evitamos colapsar si la grafica tiene puros 0 */}
-        {totalRegisters > 0 ? (
-          <PieChart
-            data={chartData}
-            width={screenWidth - 80}
-            height={180}
-            chartConfig={{
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            }}
-            accessor={"count"}
-            backgroundColor={"transparent"}
-            paddingLeft={"10"}
-            absolute
-          />
-        ) : (
-          <Text style={styles.emptyChartText}>Registra tu primer estado para visualizar la gráfica.</Text>
-        )}
+        {/* Aquí es donde envolvemos la gráfica entera para que funcione como botón */}
+        <TouchableOpacity 
+          activeOpacity={0.7} 
+          onPress={() => router.push('/stats')}
+          style={styles.chartTouchable}
+        >
+          {totalRegisters > 0 ? (
+            <PieChart
+              data={chartData}
+              width={screenWidth - 80}
+              height={180}
+              chartConfig={{
+                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              }}
+              accessor={"count"}
+              backgroundColor={"transparent"}
+              paddingLeft={"10"}
+              absolute
+            />
+          ) : (
+            <Text style={styles.emptyChartText}>Registra tu primer estado para visualizar la gráfica. Toca aquí para ver tus estadísticas completas.</Text>
+          )}
+        </TouchableOpacity>
 
         <View style={styles.quoteContainer}>
           <Text style={styles.motivationalText}>"{dailyQuote.text}"</Text>
@@ -149,7 +155,6 @@ export default function DashboardScreen() {
           {todayMood ? 'Pero si tus emociones cambiaron, puedes actualizarlo.' : 'Tómate un momento para escuchar tus emociones.'}
         </Text>
         
-        {/* Boton dinamico conectado a la base de datos */}
         <CustomButton 
           title={todayMood ? 'Actualizar mi día' : 'Registrar mi día'} 
           onPress={() => router.push('/check-in')} 
@@ -205,6 +210,11 @@ const styles = StyleSheet.create({
     color: theme.colors.light.text,
     marginBottom: 10,
     alignSelf: 'flex-start',
+  },
+  // Añadimos este estilo simple para que el area tactil ocupe el ancho correcto
+  chartTouchable: {
+    width: '100%',
+    alignItems: 'center',
   },
   emptyChartText: {
     fontSize: 14,
