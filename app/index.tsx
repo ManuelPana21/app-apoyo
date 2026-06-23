@@ -1,7 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-// Agregamos Image a las importaciones
-import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import CustomAlert from '../src/components/CustomAlert';
 import CustomButton from '../src/components/CustomButton';
 import CustomInput from '../src/components/CustomInput';
@@ -10,23 +10,54 @@ import { login } from '../src/services/authService';
 
 // Esta funcion es la pantalla inicial que lee Expo al abrir la app
 export default function Index() {
-  // Variables para guardar lo que el usuario escribe
+  const router = useRouter();
+  
+  // Controla la pantalla de carga inicial
+  const [isChecking, setIsChecking] = useState(true);
+
+  // Estados de los inputs y alertas que faltaban
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
-  // Variables para controlar la ventana de alerta en pantalla
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
 
-  const router = useRouter();
+  // Revisa la memoria al cargar la pantalla
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const session = await AsyncStorage.getItem('user_session');
+        if (session === 'active') {
+          router.replace('/(tabs)/dashboard');
+        } else {
+          setIsChecking(false);
+        }
+      } catch (error) {
+        setIsChecking(false);
+      }
+    };
+    
+    checkSession();
+  }, []);
+
+  // Muestra el fondo blanco mientras lee la memoria
+  if (isChecking) {
+    return <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />;
+  }
 
   // Funcion que se ejecuta al presionar Iniciar Sesion
   const handleLogin = async () => {
     // Llamamos al servicio de autenticacion
     const result = await login(username, password);
-    
+
     if (result.success && result.user) {
+      try {
+        // Guardamos la sesión aquí
+        await AsyncStorage.setItem('user_session', 'active');
+      } catch (error) {
+        console.log('Error guardando la sesión en memoria', error);
+      }
+
       // Verificamos si es primera vez o faltan datos para mandarlo al onboarding
       if (result.user.isFirstLogin || !result.user.gender) {
         router.replace('/onboarding');

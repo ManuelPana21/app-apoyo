@@ -69,7 +69,6 @@ export default function TabsLayout() {
         name="dashboard"
         options={{
           title: 'Inicio',
-          // Indicamos a TS los tipos de datos recibidos
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
             <AnimatedIcon name="home" color={color} focused={focused} size={22} />
           ),
