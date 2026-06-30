@@ -3,17 +3,17 @@
     "name": "Heart Container",
     "slug": "app-apoyo-emocional",
     "scheme": "heartcontainer",
-    "version": "1.1.1",
+    "version": "2.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/android-icon-background.png",
+    "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/images/android-icon-background.png",
+      "image": "./assets/images/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
     "notification": {
-      "icon": "./assets/images/android-icon-background.png",
+      "icon": "./assets/images/android-icon-foreground.png",
       "color": "#D6F1FF"
     },
     "android": {

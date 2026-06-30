@@ -2,37 +2,59 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 
 // Configuracion corregida segun los requisitos actuales de NotificationBehavior
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true, // Requerido por la version actual
-    shouldShowList: true,   // Requerido por la version actual
-  }),
-});
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true, // Requerido por la version actual
+      shouldShowList: true,   // Requerido por la version actual
+    }),
+  });
+} catch (error) {
+  console.log('Error al configurar setNotificationHandler:', error);
+}
+
+// Objeto seguro para los tipos de disparadores, previniendo fallos si no están definidos
+const TriggerTypes = Notifications.SchedulableTriggerInputTypes || {
+  DATE: 'date',
+  TIME_INTERVAL: 'timeInterval',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  YEARLY: 'yearly',
+};
 
 export async function requestNotificationPermissions() {
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-  if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
+  try {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    return finalStatus === 'granted';
+  } catch (error) {
+    console.log('Error solicitando permisos de notificación:', error);
+    return false;
   }
-  return finalStatus === 'granted';
 }
 
 export async function scheduleHabitNotification(title: string, body: string, date: Date) {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: title,
-      body: body,
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DATE,
-      date: date,
-    },
-  });
+  try {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: title,
+        body: body,
+      },
+      trigger: {
+        type: TriggerTypes.DATE,
+        date: date,
+      },
+    });
+  } catch (error) {
+    console.log('Error programando notificación de hábito:', error);
+  }
 }
 
 export async function scheduleDailyReflectionReminder() {
@@ -59,7 +81,7 @@ export async function scheduleDailyReflectionReminder() {
         body: 'Aún no has registrado tus emociones de hoy. Tómate un momento para reflexionar.',
       },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        type: TriggerTypes.DAILY,
         hour: randomHour,
         minute: randomMinute,
       } as any,

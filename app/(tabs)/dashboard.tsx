@@ -77,9 +77,13 @@ export default function DashboardScreen() {
   );
 
   const initReflectionReminder = async () => {
-    const hasPermission = await requestNotificationPermissions();
-    if (hasPermission) {
-      await scheduleDailyReflectionReminder();
+    try {
+      const hasPermission = await requestNotificationPermissions();
+      if (hasPermission) {
+        await scheduleDailyReflectionReminder();
+      }
+    } catch (error) {
+      console.log('Error initializing reflection reminder in dashboard:', error);
     }
   };
 
