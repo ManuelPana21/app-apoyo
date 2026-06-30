@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useState, useMemo } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { theme } from '../../src/constants/theme';
 import { getRandomEncouragement } from '../../src/constants/habitEncouragement';
@@ -46,7 +47,18 @@ export default function HabitsScreen() {
   // Reloj interno y visibilidad de tutorial/modales cuando cambia el foco de la pantalla
   useEffect(() => {
     if (isFocused) {
-      setShowTutorial(true);
+      const checkTutorialStatus = async () => {
+        try {
+          const hasSeenTutorial = await AsyncStorage.getItem('hasSeenHabitsTutorial');
+          if (hasSeenTutorial !== 'true') {
+            setShowTutorial(true);
+            await AsyncStorage.setItem('hasSeenHabitsTutorial', 'true');
+          }
+        } catch (error) {
+          console.log('Error checking habit tutorial status:', error);
+        }
+      };
+      checkTutorialStatus();
     } else {
       setShowTutorial(false);
       setShowCreateModal(false);
