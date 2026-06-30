@@ -53,18 +53,32 @@ export default function ProfileScreen() {
   };
 
   const handleSave = async () => {
-  const cleanHobbies = editHobbies.filter(h => h.trim() !== '');
-  const success = await updateUserProfile({
-    fullName: editFullName, // Se incluye el nombre editado
-    profilePicture: editImage || undefined,
-    hobbies: cleanHobbies
-  });
+    const cleanHobbies = editHobbies.filter(h => h.trim() !== '');
+    
+    // 1. Guardar en el servicio
+    const success = await updateUserProfile({
+      fullName: editFullName,
+      profilePicture: editImage || undefined,
+      hobbies: cleanHobbies
+    });
 
-  if (success) {
-    await loadUserData();
-    setIsEditing(false);
-  }
-};
+    if (success) {
+      // 2. Actualizar estado local inmediatamente
+      setUser(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          fullName: editFullName,
+          profilePicture: editImage ?? prev.profilePicture,
+          hobbies: cleanHobbies
+        } as User;
+      });
+
+      // 3. Recargar datos y salir de modo edición
+      await loadUserData();
+      setIsEditing(false);
+    }
+  };
 
   const handleLogout = () => {
     router.replace('/');

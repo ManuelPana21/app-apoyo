@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { LayoutAnimation, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LayoutAnimation, ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
 // Asegúrate de que getAngryTip esté exportado desde tu archivo de prompts
 import { generateCalmQuestion, getAngryTip, getAnxiousTip, getComfortTip, getFoodTip, getHabitTip } from '../src/constants/checkinPrompts';
 import { getEmotionPhrase } from '../src/constants/emotionPhrases';
@@ -91,6 +92,39 @@ export default function CheckInScreen() {
     // Limpieza del proceso de ejecucion anterior
     return () => clearTimeout(timeout);
   }, [isBreathing, breathTimer, breathPhase, path]);
+
+  // Efecto para la guía háptica del ejercicio de respiración (4-7-8)
+  useEffect(() => {
+    if (Platform.OS === 'web' || !isBreathing || path !== 'anxious' || breathPhase === 'Terminado') {
+      return;
+    }
+
+    let interval: ReturnType<typeof setInterval>;
+
+    if (breathPhase === 'Inhalar') {
+      // Vibrar suavemente pero constante: cada 200ms
+      interval = setInterval(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      }, 200);
+    } else if (breathPhase === 'Sostener') {
+      // Ticks sutiles cada 1 segundo
+      Haptics.selectionAsync().catch(() => {});
+      interval = setInterval(() => {
+        Haptics.selectionAsync().catch(() => {});
+      }, 1000);
+    } else if (breathPhase === 'Exhalar') {
+      // Vibrar suavemente constante: cada 200ms
+      interval = setInterval(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      }, 200);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isBreathing, breathPhase, path]);
 
   // Actualizamos para recibir 'enojado'
   const handleEmotionSelect = (emotionId: 'feliz' | 'tranquilo' | 'triste' | 'ansioso' | 'enojado') => {
