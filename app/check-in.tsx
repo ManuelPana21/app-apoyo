@@ -1,7 +1,7 @@
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { LayoutAnimation, ScrollView, StyleSheet, Text, TouchableOpacity, View, Platform } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import { LayoutAnimation, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, Vibration, View } from 'react-native';
 // Asegúrate de que getAngryTip esté exportado desde tu archivo de prompts
 import { generateCalmQuestion, getAngryTip, getAnxiousTip, getComfortTip, getFoodTip, getHabitTip } from '../src/constants/checkinPrompts';
 import { getEmotionPhrase } from '../src/constants/emotionPhrases';
@@ -99,29 +99,42 @@ export default function CheckInScreen() {
       return;
     }
 
+    // Función auxiliar para forzar la vibración nativa en Android
+    const triggerVibrate = (duration: number) => {
+      if (Platform.OS === 'android') {
+        Vibration.vibrate(duration);
+      } else {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      }
+    };
+
     let interval: ReturnType<typeof setInterval>;
 
     if (breathPhase === 'Inhalar') {
       // Vibrar suavemente pero constante: cada 200ms
       interval = setInterval(() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+        triggerVibrate(50); // 50ms es un toque rápido
       }, 200);
     } else if (breathPhase === 'Sostener') {
       // Ticks sutiles cada 1 segundo
-      Haptics.selectionAsync().catch(() => {});
+      triggerVibrate(50);
       interval = setInterval(() => {
-        Haptics.selectionAsync().catch(() => {});
+        triggerVibrate(50);
       }, 1000);
     } else if (breathPhase === 'Exhalar') {
       // Vibrar suavemente constante: cada 200ms
       interval = setInterval(() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+        triggerVibrate(50);
       }, 200);
     }
 
     return () => {
       if (interval) {
         clearInterval(interval);
+      }
+      // Limpieza vital en Android para que el motor no se quede pegado
+      if (Platform.OS === 'android') {
+        Vibration.cancel();
       }
     };
   }, [isBreathing, breathPhase, path]);
