@@ -3,7 +3,7 @@
     "name": "Heart Container",
     "slug": "app-apoyo-emocional",
     "scheme": "heartcontainer",
-    "version": "2.0.1",
+    "version": "2.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
