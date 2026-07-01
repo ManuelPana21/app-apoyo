@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
-import { HabitData } from './_habitUtils';
-import { requestNotificationPermissions, scheduleHabitNotification } from '../../src/services/notificationsService';
+import { HabitData } from '../src/services/habitUtils';
+import { requestNotificationPermissions, scheduleHabitNotification } from '../src/services/notificationsService';
 
 export function useHabits() {
   const isFocused = useIsFocused();

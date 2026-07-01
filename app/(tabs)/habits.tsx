@@ -5,9 +5,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { theme } from '../../src/constants/theme';
 import { getRandomEncouragement } from '../../src/constants/habitEncouragement';
-import { HabitData, processAndSortHabits } from './_habitUtils';
-import { useHabits } from './_useHabits';
-import { HabitCard, CreateHabitModal, FulfillmentModal, HabitsTutorialModal } from './_habitsComponents';
+import { HabitData, processAndSortHabits } from '../../src/services/habitUtils';
+import { useHabits } from '../../hooks/useHabits';
+import { HabitCard, CreateHabitModal, FulfillmentModal, HabitsTutorialModal } from '../../src/components/habitsComponents';
 
 export default function HabitsScreen() {
   const isFocused = useIsFocused();

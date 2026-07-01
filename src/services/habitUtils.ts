@@ -1,4 +1,4 @@
-import { theme } from '../../src/constants/theme';
+import { theme } from '../constants/theme';
 
 export interface HabitData {
   id: string;

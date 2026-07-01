@@ -4,9 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { theme } from '../../src/constants/theme';
-import { getRandomEncouragement, HabitQuote } from '../../src/constants/habitEncouragement';
-import { HabitData, plansList, daysOfWeek, generateMarkedDates, getCalendarButtonText, safeParseDate } from './_habitUtils';
+import { theme } from '../constants/theme';
+import { getRandomEncouragement, HabitQuote } from '../constants/habitEncouragement';
+import { HabitData, plansList, daysOfWeek, generateMarkedDates, getCalendarButtonText, safeParseDate } from '../services/habitUtils';
 
 // Configuración de Localización en Español para el Calendario
 LocaleConfig.locales['es'] = {
