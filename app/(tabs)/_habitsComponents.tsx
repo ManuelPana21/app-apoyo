@@ -6,7 +6,7 @@ import Slider from '@react-native-community/slider';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { theme } from '../../src/constants/theme';
 import { getRandomEncouragement, HabitQuote } from '../../src/constants/habitEncouragement';
-import { HabitData, plansList, daysOfWeek, generateMarkedDates, getCalendarButtonText } from './_habitUtils';
+import { HabitData, plansList, daysOfWeek, generateMarkedDates, getCalendarButtonText, safeParseDate } from './_habitUtils';
 
 // Configuración de Localización en Español para el Calendario
 LocaleConfig.locales['es'] = {
@@ -30,7 +30,7 @@ interface HabitCardProps {
 
 export function HabitCard({ habit, onPress, onEdit, onDelete }: HabitCardProps) {
   const [showMenu, setShowMenu] = useState(false);
-  const timeObj = new Date(habit.startTime);
+  const timeObj = safeParseDate(habit.startTime);
   const displayTime = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   const handlePress = () => {
@@ -172,7 +172,7 @@ export function CreateHabitModal({ visible, habitToEdit, onClose, onSave }: Crea
         setSelectedDays(habitToEdit.selectedDays);
         setSelectedDates(habitToEdit.selectedDates);
         setSelectedPlan(habitToEdit.selectedPlan);
-        setStartTime(new Date(habitToEdit.startTime));
+        setStartTime(safeParseDate(habitToEdit.startTime));
         setDuration(habitToEdit.duration);
         setEnableAlert(habitToEdit.enableAlert);
         if (habitToEdit.selectedDates.length > 0 || habitToEdit.selectedPlan) {

@@ -80,9 +80,32 @@ export const getCalendarButtonText = (
   return 'Elegir fechas específicas o planes';
 };
 
+export const safeParseDate = (dateStr: any): Date => {
+  if (!dateStr) return new Date();
+  
+  const parsed = new Date(dateStr);
+  if (!isNaN(parsed.getTime())) {
+    return parsed;
+  }
+  
+  const timeRegex = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
+  const match = String(dateStr).trim().match(timeRegex);
+  if (match) {
+    const hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    const seconds = match[3] ? parseInt(match[3], 10) : 0;
+    
+    const date = new Date();
+    date.setHours(hours, minutes, seconds, 0);
+    return date;
+  }
+  
+  return new Date();
+};
+
 export const processAndSortHabits = (habitsList: HabitData[], currentTime: Date): (HabitData & { isActive: boolean })[] => {
   return habitsList.map(habit => {
-    const habitTime = new Date(habit.startTime);
+    const habitTime = safeParseDate(habit.startTime);
     
     const currentHour = currentTime.getHours();
     const currentMinute = currentTime.getMinutes();
