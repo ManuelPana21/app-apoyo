@@ -71,7 +71,9 @@ export default function ViewMemoryScreen() {
     const result = await updateMemory(id, editTitle, editContent, editImageUri);
 
     if (result.success) {
-      setMemory({ ...memory!, title: editTitle, content: editContent, imageUri: editImageUri });
+      const finalImageUri = result.persistentUri !== undefined ? result.persistentUri : editImageUri;
+      setMemory({ ...memory!, title: editTitle, content: editContent, imageUri: finalImageUri });
+      setEditImageUri(finalImageUri);
       setIsEditing(false);
       setAlertConfig({ title: 'Actualizado', message: 'Tu memoria ha sido editada correctamente.' });
       setAlertVisible(true);

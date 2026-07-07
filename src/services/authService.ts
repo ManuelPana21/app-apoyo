@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveImageToPersistentStorage } from './imageService';
 
 export interface User {
   id: string;
@@ -76,6 +77,14 @@ export const updateUserProfile = async (updatedData: Partial<User>): Promise<boo
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser) return false;
+
+    // Persistir la imagen de perfil en almacenamiento persistente
+    if (updatedData.profilePicture) {
+      const persistentUri = await saveImageToPersistentStorage(updatedData.profilePicture);
+      if (persistentUri) {
+        updatedData.profilePicture = persistentUri;
+      }
+    }
 
     const updatedUser = { ...currentUser, ...updatedData };
     await AsyncStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser));

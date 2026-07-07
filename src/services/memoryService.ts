@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveImageToPersistentStorage } from './imageService';
 
 export interface Memory {
   id: string;
@@ -31,35 +32,37 @@ export const getMemoryById = async (id: string): Promise<Memory | null> => {
 };
 
 // Creamos un nuevo objeto de memoria y lo agregamos al inicio de la lista
-export const saveMemory = async (title: string, content: string, imageUri?: string | null): Promise<{ success: boolean }> => {
+export const saveMemory = async (title: string, content: string, imageUri?: string | null): Promise<{ success: boolean; persistentUri?: string | null }> => {
   try {
     const memories = await getMemories();
+    const persistentUri = imageUri ? await saveImageToPersistentStorage(imageUri) : null;
     const newMemory: Memory = {
       id: Date.now().toString(),
       title,
       content,
       date: new Date().toLocaleDateString(),
-      imageUri,
+      imageUri: persistentUri,
     };
     
     memories.unshift(newMemory);
     await AsyncStorage.setItem(MEMORIES_KEY, JSON.stringify(memories));
-    return { success: true };
+    return { success: true, persistentUri };
   } catch (error) {
     return { success: false };
   }
 };
 
 // Sobrescribimos los datos de una memoria existente buscando su posicion en la lista
-export const updateMemory = async (id: string, title: string, content: string, imageUri?: string | null): Promise<{ success: boolean }> => {
+export const updateMemory = async (id: string, title: string, content: string, imageUri?: string | null): Promise<{ success: boolean; persistentUri?: string | null }> => {
   try {
     const memories = await getMemories();
     const index = memories.findIndex(m => m.id === id);
     
     if (index > -1) {
-      memories[index] = { ...memories[index], title, content, imageUri };
+      const persistentUri = imageUri ? await saveImageToPersistentStorage(imageUri) : null;
+      memories[index] = { ...memories[index], title, content, imageUri: persistentUri };
       await AsyncStorage.setItem(MEMORIES_KEY, JSON.stringify(memories));
-      return { success: true };
+      return { success: true, persistentUri };
     }
     return { success: false };
   } catch (error) {
